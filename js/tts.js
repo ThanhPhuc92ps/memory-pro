@@ -1,27 +1,39 @@
-// tts.js — Hệ thống phát âm thanh có trí nhớ
 const TTS = {
-    isEnabled(tab) {
-        if (!tab) return false;
-        // Đọc giá trị từ bộ nhớ máy
-        const saved = localStorage.getItem('tts_enabled_' + tab);
-        // Nếu là lần đầu tiên (null), mặc định là true (Bật)
-        return saved === null ? true : saved === 'true';
+    STORAGE_KEY: 'memory_pro_tts_settings',
+
+    getSettings() {
+        try {
+            // Lấy object tổng ra, nếu chưa có thì trả về {}
+            return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
+        } catch (e) { return {}; }
     },
 
-    toggle(tab) {
-        if (!tab) return;
-        const newState = !this.isEnabled(tab);
-        // Lưu chặt vào máy dạng chuỗi 'true' hoặc 'false'
-        localStorage.setItem('tts_enabled_' + tab, newState.toString());
+    isEnabled(tabKey) {
+        const key = tabKey || "Chung"; // Fallback về tab mặc định
+        const settings = this.getSettings();
+        // Nếu chưa bao giờ thiết lập cho tab này (undefined), mặc định trả về true
+        return settings[key] !== false;
     },
 
-    speak(text, tab) {
-        if (!this.isEnabled(tab)) return;
+    toggle(tabKey) {
+        const key = tabKey || "Chung";
+        const settings = this.getSettings();
+        
+        // Đảo trạng thái riêng cho tab này
+        settings[key] = !this.isEnabled(key);
+        
+        // Lưu ngược cả object vào 1 key duy nhất
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
+    },
+
+    speak(text, tabKey) {
+        if (!text || !this.isEnabled(tabKey)) return;
         if (!window.speechSynthesis) return;
+
         window.speechSynthesis.cancel();
-        const utt = new SpeechSynthesisUtterance(text);
-        utt.lang = 'en-US';
-        utt.rate = 0.9;
-        window.speechSynthesis.speak(utt);
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
     }
 };
