@@ -23,7 +23,6 @@
     <div class="toolbar">
         <button onclick="UI.openModal('settingsModal')" class="btn-circle">⚙️</button>
         <button onclick="App.mixNote()" class="btn-circle btn-mix">🎲</button>
-        <button onclick="Cards.revealConsonants()" class="btn-circle" style="border-color: var(--primary);">👁️‍🗨️</button>
         <button onclick="Cards.revealStep()" class="btn-circle btn-big">👁️</button>
         <button onclick="Cards.toggleAll()" class="btn-circle">📢</button>
         <button onclick="UI.openModal('addModal')" class="btn-circle btn-add">+</button>
@@ -38,6 +37,10 @@
                 <div id="tts-btn" class="setting-item" onclick="App.toggleTTS()">
                     <div style="font-size: 24px;">🔊</div>
                     <div id="tts-label" style="font-size: 12px; margin-top: 5px;">Âm thanh (Tab)</div>
+                </div>
+                <div class="setting-item" style="grid-column: span 2;" onclick="UI.toggleRevealMode()">
+                <div style="font-size: 24px;">👁️‍🗨️</div>
+                <div id="reveal-label" style="font-size: 12px; margin-top: 5px;">Chế độ: Hiện thẳng</div>
                 </div>
                 <div class="setting-item" onclick="App.exportData()">
                     <div style="font-size: 24px;">💾</div>
