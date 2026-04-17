@@ -58,6 +58,10 @@ h2#note-content { font-size: 1.2rem; font-weight: normal; line-height: 1.6; whit
     user-select: auto;
     animation: fadeIn 0.3s ease-out;
 }
+.cloze[data-state="consonant-shown"] {
+    color: var(--primary); /* Hoặc màu bất kỳ để phân biệt với lúc ẩn hoàn toàn */
+    letter-spacing: 1px;
+}
 
 /* Toolbar */
 .toolbar { position: fixed; bottom: 25px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 12px; z-index: 100; pointer-events: none; }
