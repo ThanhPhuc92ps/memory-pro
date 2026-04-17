@@ -60,17 +60,34 @@ const Cards = {
         }
     },
 
+    // Thay thế hàm revealStep cũ trong cards.js
     revealStep() {
         const first = document.querySelector('.cloze:not(.revealed)');
+        const mode = localStorage.getItem('reveal_mode') || 'full';
+    
         if (first) {
-            Cards.toggleCloze({ stopPropagation: () => {} }, first);
+            const word = first.dataset.word;
+            
+            // Nếu chọn chế độ phụ âm VÀ thẻ này chưa ở trạng thái hiện phụ âm
+            if (mode === 'consonants' && first.dataset.state !== 'consonant-shown') {
+                const consonantOnly = word.replace(/[aeiouyAEIOUY]/g, '_');
+                first.textContent = consonantOnly;
+                first.dataset.state = 'consonant-shown'; // Đánh dấu trạng thái trung gian
+                TTS.speak(word, State.currentTab); // Phát âm để hỗ trợ
+            } else {
+                // Hiện đầy đủ từ ẩn
+                Cards.toggleCloze({ stopPropagation: () => {} }, first);
+            }
         } else {
+            // Nếu đã hiện hết, nhấn lần nữa để ẩn tất cả (Reset)
             document.querySelectorAll('.cloze').forEach(el => {
                 el.classList.remove('revealed');
+                delete el.dataset.state; // Xóa trạng thái trung gian
                 el.textContent = el.dataset.hint || el.dataset.word;
             });
         }
     },
+
 
     toggleAll() {
         const all = document.querySelectorAll('.cloze');
