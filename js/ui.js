@@ -100,20 +100,35 @@ const UI = {
             container.appendChild(span);
         });
     },
+    // Thêm vào object UI trong ui.js
+    toggleRevealMode() {
+      const current = localStorage.getItem('reveal_mode') || 'full';
+      const next = current === 'full' ? 'consonants' : 'full';
+      localStorage.setItem('reveal_mode', next);
+      this.updateRevealBtn();
+    },
+    
+    updateRevealBtn() {
+      const label = document.getElementById('reveal-label');
+      const mode = localStorage.getItem('reveal_mode') || 'full';
+      if (label) {
+          label.textContent = `Chế độ: ${mode === 'full' ? 'Hiện thẳng' : 'Phụ âm trước'}`;
+      }
+    },
 
     // --- TTS Button ---
- updateTTSBtn() {
-    const btn = document.getElementById('tts-btn');
-    const label = document.getElementById('tts-label');
-    if (!btn || !label) return;
-
-    // Lấy trạng thái từ tts.js (đã có bộ nhớ localStorage)
-    const enabled = TTS.isEnabled(State.currentTab);
+     updateTTSBtn() {
+        const btn = document.getElementById('tts-btn');
+        const label = document.getElementById('tts-label');
+        if (!btn || !label) return;
     
-    // Cập nhật giao diện
-    btn.classList.toggle('active', enabled);
-    label.textContent = `Loa: ${enabled ? 'BẬT' : 'TẮT'}`;
-},
+        // Lấy trạng thái từ tts.js (đã có bộ nhớ localStorage)
+        const enabled = TTS.isEnabled(State.currentTab);
+        
+        // Cập nhật giao diện
+        btn.classList.toggle('active', enabled);
+        label.textContent = `Loa: ${enabled ? 'BẬT' : 'TẮT'}`;
+    },
 
     // --- Modals ---
     openModal(id) {
