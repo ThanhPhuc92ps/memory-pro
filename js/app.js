@@ -37,6 +37,7 @@ const App = {
         State.lastNoteId = null;
         UI.renderTabs();
         UI.renderMain();
+        UI.updateTTSBtn();
     },
 
     mixNote() {
