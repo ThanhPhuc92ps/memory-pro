@@ -1,25 +1,31 @@
-// tts.js — Text-to-Speech module
+// tts.js — Text-to-Speech logic
 
 const TTS = {
-    settings: JSON.parse(localStorage.getItem('ttsTabSettings')) || {},
+    // Load từ localStorage khi khởi động
+    _enabled: JSON.parse(localStorage.getItem('tts_enabled') || '{}'),
 
-    isEnabled(tabKey) {
-        const key = tabKey || "Home_Default";
-        return this.settings[key] !== false;
+    _save() {
+        localStorage.setItem('tts_enabled', JSON.stringify(this._enabled));
     },
 
-    toggle(tabKey) {
-        const key = tabKey || "Home_Default";
-        this.settings[key] = !this.isEnabled(key);
-        localStorage.setItem('ttsTabSettings', JSON.stringify(this.settings));
+    isEnabled(tab) {
+        if (tab === null) return false;
+        return this._enabled[tab] !== false; // default: ON
     },
 
-    speak(text, tabKey) {
-        if (!this.isEnabled(tabKey) || !text) return;
+    toggle(tab) {
+        if (tab === null) return;
+        this._enabled[tab] = !this.isEnabled(tab);
+        this._save(); // Lưu ngay sau khi thay đổi
+    },
+
+    speak(text, tab) {
+        if (!this.isEnabled(tab)) return;
+        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'en-US';
-        u.rate = 0.9;
-        window.speechSynthesis.speak(u);
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang = 'en-US';
+        utt.rate = 0.9;
+        window.speechSynthesis.speak(utt);
     }
 };
