@@ -1,25 +1,25 @@
-// tts.js — Text-to-Speech logic
+// tts.js — Text-to-Speech module
 
 const TTS = {
-    _enabled: {}, // { tabName: bool }
+    settings: JSON.parse(localStorage.getItem('ttsTabSettings')) || {},
 
-    isEnabled(tab) {
-        if (tab === null) return false;
-        return this._enabled[tab] !== false; // default: ON
+    isEnabled(tabKey) {
+        const key = tabKey || "Home_Default";
+        return this.settings[key] !== false;
     },
 
-    toggle(tab) {
-        if (tab === null) return;
-        this._enabled[tab] = !this.isEnabled(tab);
+    toggle(tabKey) {
+        const key = tabKey || "Home_Default";
+        this.settings[key] = !this.isEnabled(key);
+        localStorage.setItem('ttsTabSettings', JSON.stringify(this.settings));
     },
 
-    speak(text, tab) {
-        if (!this.isEnabled(tab)) return;
-        if (!window.speechSynthesis) return;
+    speak(text, tabKey) {
+        if (!this.isEnabled(tabKey) || !text) return;
         window.speechSynthesis.cancel();
-        const utt = new SpeechSynthesisUtterance(text);
-        utt.lang = 'en-US';
-        utt.rate = 0.9;
-        window.speechSynthesis.speak(utt);
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
     }
 };
