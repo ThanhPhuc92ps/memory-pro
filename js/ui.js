@@ -102,14 +102,18 @@ const UI = {
     },
 
     // --- TTS Button ---
-    updateTTSBtn() {
-        const btn = document.getElementById('tts-btn');
-        const label = document.getElementById('tts-label');
-        if (!btn) return;
-        const enabled = TTS.isEnabled(State.currentTab);
-        btn.classList.toggle('active', enabled);
-        label.textContent = `Loa: ${enabled ? 'BẬT' : 'TẮT'}`;
-    },
+ updateTTSBtn() {
+    const btn = document.getElementById('tts-btn');
+    const label = document.getElementById('tts-label');
+    if (!btn || !label) return;
+
+    // Lấy trạng thái từ tts.js (đã có bộ nhớ localStorage)
+    const enabled = TTS.isEnabled(State.currentTab);
+    
+    // Cập nhật giao diện
+    btn.classList.toggle('active', enabled);
+    label.textContent = `Loa: ${enabled ? 'BẬT' : 'TẮT'}`;
+},
 
     // --- Modals ---
     openModal(id) {
