@@ -56,6 +56,7 @@ h2#note-content { font-size: 1.2rem; font-weight: normal; line-height: 1.6; whit
     margin: 0; 
     font-size: 1em;
     user-select: auto;
+    animation: fadeIn 0.3s ease-out;
 }
 
 /* Toolbar */
