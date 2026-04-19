@@ -64,13 +64,13 @@
                 <button class="md-tab active" onclick="UI.switchEditorTab('add','write')">✏️ Soạn</button>
                 <button class="md-tab" onclick="UI.switchEditorTab('add','preview')">👁 Xem trước</button>
             </div>
-            <div class="md-toolbar">
-                <button onclick="UI.mdInsert('addText','**','**')" title="Bold"><b>B</b></button>
-                <button onclick="UI.mdInsert('addText','*','*')" title="Italic"><i>I</i></button>
-                <button onclick="UI.mdInsert('addText','`','`')" title="Code"><code>{ }</code></button>
-                <button onclick="UI.mdInsert('addText','\n- ','')" title="List">≡</button>
-                <button onclick="UI.mdInsert('addText','[',']')" title="Cloze">[ ]</button>
-                <button onclick="UI.mdInsert('addText','[','|gợi ý]')" title="Cloze+hint">[|h]</button>
+            <div id="add-toolbar" class="md-toolbar">
+                <button onclick="UI.mdInsert('addText','**','**')"><b>B</b></button>
+                <button onclick="UI.mdInsert('addText','*','*')"><i>I</i></button>
+                <button onclick="UI.mdInsert('addText','`','`')"><code>{ }</code></button>
+                <button onclick="UI.mdInsert('addText','\n- ','')">≡</button>
+                <button onclick="UI.mdInsert('addText','[',']')">[ ]</button>
+                <button onclick="UI.mdInsert('addText','[','|gợi ý]')">[|h]</button>
             </div>
             <textarea id="addText" rows="4" placeholder="Nội dung [ẩn|gợi ý]... Hỗ trợ **Markdown**"></textarea>
             <div id="add-preview" class="md-preview" style="display:none;"></div>
@@ -92,13 +92,13 @@
                 <button class="md-tab active" onclick="UI.switchEditorTab('edit','write')">✏️ Soạn</button>
                 <button class="md-tab" onclick="UI.switchEditorTab('edit','preview')">👁 Xem trước</button>
             </div>
-            <div class="md-toolbar">
-                <button onclick="UI.mdInsert('editText','**','**')" title="Bold"><b>B</b></button>
-                <button onclick="UI.mdInsert('editText','*','*')" title="Italic"><i>I</i></button>
-                <button onclick="UI.mdInsert('editText','`','`')" title="Code"><code>{ }</code></button>
-                <button onclick="UI.mdInsert('editText','\n- ','')" title="List">≡</button>
-                <button onclick="UI.mdInsert('editText','[',']')" title="Cloze">[ ]</button>
-                <button onclick="UI.mdInsert('editText','[','|gợi ý]')" title="Cloze+hint">[|h]</button>
+            <div id="edit-toolbar" class="md-toolbar">
+                <button onclick="UI.mdInsert('editText','**','**')"><b>B</b></button>
+                <button onclick="UI.mdInsert('editText','*','*')"><i>I</i></button>
+                <button onclick="UI.mdInsert('editText','`','`')"><code>{ }</code></button>
+                <button onclick="UI.mdInsert('editText','\n- ','')">≡</button>
+                <button onclick="UI.mdInsert('editText','[',']')">[ ]</button>
+                <button onclick="UI.mdInsert('editText','[','|gợi ý]')">[|h]</button>
             </div>
             <textarea id="editText" rows="4"></textarea>
             <div id="edit-preview" class="md-preview" style="display:none;"></div>
