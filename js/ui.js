@@ -74,11 +74,11 @@ const UI = {
             if (!e.target.classList.contains('cloze')) App.mixNote();
         });
 
-        const contentDiv = document.createElement('div');
-        contentDiv.id = 'note-content';
-        contentDiv.appendChild(Cards.formatClozeMarkdown(note.text));
+        const h2 = document.createElement('h2');
+        h2.id = 'note-content';
+        h2.appendChild(Cards.formatCloze(note.text));
 
-        contentWrap.appendChild(contentDiv);
+        contentWrap.appendChild(h2);
         card.appendChild(meta);
         card.appendChild(contentWrap);
 
@@ -100,17 +100,22 @@ const UI = {
             container.appendChild(span);
         });
     },
-    // Thêm vào object UI trong ui.js
+    _revealKey() {
+      const tab = (typeof State !== 'undefined' && State.currentTab) ? State.currentTab : 'home';
+      return `reveal_mode_${tab}`;
+    },
+
     toggleRevealMode() {
-      const current = localStorage.getItem('reveal_mode') || 'full';
+      const key = this._revealKey();
+      const current = localStorage.getItem(key) || 'full';
       const next = current === 'full' ? 'consonants' : 'full';
-      localStorage.setItem('reveal_mode', next);
+      localStorage.setItem(key, next);
       this.updateRevealBtn();
     },
-    
+
     updateRevealBtn() {
       const label = document.getElementById('reveal-label');
-      const mode = localStorage.getItem('reveal_mode') || 'full';
+      const mode = localStorage.getItem(this._revealKey()) || 'full';
       if (label) {
           label.textContent = `Chế độ: ${mode === 'full' ? 'Hiện thẳng' : 'Phụ âm trước'}`;
       }
@@ -134,6 +139,7 @@ const UI = {
     openModal(id) {
         document.getElementById(id).style.display = 'flex';
         if (id === 'addModal') this.renderQuickTabs('quick-tabs-list', 'addCat');
+        if (id === 'settingsModal') this.updateRevealBtn();
     },
 
     closeModal(id) {
@@ -147,55 +153,6 @@ const UI = {
         document.getElementById('editPrio').value = note.prio;
         this.renderQuickTabs('edit-quick-tabs-list', 'editCat');
         this.openModal('editModal');
-    },
-
-    // --- Markdown toolbar: insert wrapper around selection ---
-    mdInsert(textareaId, before, after) {
-        const el = document.getElementById(textareaId);
-        el.focus();
-        const start = el.selectionStart, end = el.selectionEnd;
-        const sel = el.value.substring(start, end);
-        const insert = before + (sel || 'text') + after;
-        el.value = el.value.substring(0, start) + insert + el.value.substring(end);
-        const cursor = start + before.length + (sel || 'text').length;
-        el.setSelectionRange(cursor, cursor);
-        // update preview if visible
-        const prefix = textareaId === 'addText' ? 'add' : 'edit';
-        const preview = document.getElementById(prefix + '-preview');
-        if (preview && preview.style.display !== 'none') {
-            UI._renderPreview(prefix);
-        }
-    },
-
-    // --- Switch between Write / Preview tabs in modals ---
-    switchEditorTab(prefix, tab) {
-        const textarea = document.getElementById(prefix === 'add' ? 'addText' : 'editText');
-        const preview = document.getElementById(prefix + '-preview');
-        const toolbar = textarea.previousElementSibling; // md-toolbar div
-        const tabs = document.querySelectorAll(`#${prefix}Modal .md-tab`);
-
-        tabs.forEach(t => t.classList.remove('active'));
-        if (tab === 'write') {
-            tabs[0].classList.add('active');
-            textarea.style.display = '';
-            toolbar.style.display = '';
-            preview.style.display = 'none';
-        } else {
-            tabs[1].classList.add('active');
-            textarea.style.display = 'none';
-            toolbar.style.display = 'none';
-            preview.style.display = '';
-            UI._renderPreview(prefix);
-        }
-    },
-
-    _renderPreview(prefix) {
-        const textareaId = prefix === 'add' ? 'addText' : 'editText';
-        const text = document.getElementById(textareaId).value || '_Chưa có nội dung_';
-        const preview = document.getElementById(prefix + '-preview');
-        // Reuse formatClozeMarkdown for preview rendering
-        preview.innerHTML = '';
-        preview.appendChild(Cards.formatClozeMarkdown(text));
     },
 
     // --- Smart Input: gõ [ tự wrap ---
