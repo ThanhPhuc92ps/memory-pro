@@ -1,6 +1,6 @@
 // sw.js — Service Worker for offline PWA
 
-const CACHE = 'memory-pro-v8';
+const CACHE = 'memory-pro-v9';
 const ASSETS = [
   '.',
   'index.html',
