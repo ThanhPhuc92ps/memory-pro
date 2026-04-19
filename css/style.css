@@ -56,6 +56,7 @@ h2#note-content { font-size: 1.2rem; font-weight: normal; line-height: 1.6; whit
     margin: 0; 
     font-size: 1em;
     user-select: auto;
+    animation: fadeIn 0.3s ease-out;
 }
 .cloze[data-state="consonant-shown"] {
     color: var(--primary); /* Hoặc màu bất kỳ để phân biệt với lúc ẩn hoàn toàn */
@@ -93,4 +94,94 @@ textarea, input { width: 100%; padding: 15px; margin-bottom: 15px; background: #
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* ── Markdown card content ── */
+#note-content { margin: 0; }
+.md-content { font-size: 1.1rem; line-height: 1.7; }
+.md-content p { margin: 0 0 10px; }
+.md-content p:last-child { margin-bottom: 0; }
+.md-content strong { color: var(--primary); font-weight: 700; }
+.md-content em { color: #aaa; font-style: italic; }
+.md-content code {
+    font-family: monospace;
+    background: #2a2a2a;
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+.md-content pre {
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 12px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+.md-content pre code { background: none; padding: 0; }
+.md-content ul, .md-content ol {
+    margin: 6px 0 8px 20px;
+    padding: 0;
+}
+.md-content li { margin-bottom: 4px; }
+.md-content h1, .md-content h2, .md-content h3 {
+    color: var(--primary);
+    margin: 8px 0 4px;
+    font-weight: 700;
+}
+
+/* ── Markdown editor toolbar ── */
+.md-tab-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.md-tab {
+    padding: 5px 14px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #1a1a1a;
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+}
+.md-tab.active {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: #2a2a2a;
+}
+.md-toolbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.md-toolbar button {
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1px solid #444;
+    background: #2c2c2c;
+    color: #ccc;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 1;
+    transition: 0.15s;
+    width: auto;
+    margin: 0;
+}
+.md-toolbar button:active { transform: scale(0.9); border-color: var(--primary); }
+.md-toolbar button b { color: #fff; }
+.md-toolbar button i { color: #aaa; }
+.md-toolbar button code { color: var(--accent); background: none; padding: 0; }
+
+/* ── Preview pane ── */
+.md-preview {
+    background: #181818;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    min-height: 80px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text);
+}
 
