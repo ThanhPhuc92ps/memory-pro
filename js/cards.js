@@ -22,29 +22,58 @@ const Cards = {
         return pool[Math.floor(Math.random() * pool.length)];
     },
 
-    formatCloze(text) {
-        const container = document.createElement('span');
-        const parts = text.split(/(\[.*?(?:\|.*?)?\])/g);
-
-        parts.forEach(part => {
-            const match = part.match(/^\[(.*?)(?:\|(.*?))?\]$/);
-            if (match) {
-                const [, word, hint] = match;
-                const span = document.createElement('span');
-                span.className = 'cloze' + (hint ? '' : ' no-hint');
-                span.dataset.word = word;
-                span.dataset.hint = hint || '';
-                span.textContent = hint || word;
-                span.addEventListener('click', (e) => Cards.toggleCloze(e, span));
-                container.appendChild(span);
-            } else {
-                container.appendChild(document.createTextNode(part));
-            }
+    // ── Markdown + Cloze renderer ──────────────────────────────────────
+    // Dùng cho hiển thị thẻ và preview trong modal
+    formatClozeMarkdown(text) {
+        // Bước 1: Tách cloze token ra, thay bằng placeholder an toàn
+        const clozeList = [];
+        const placeholdered = text.replace(/\[([^\]\[]*?)(?:\|([^\]\[]*?))?\]/g, (_, word, hint) => {
+            const i = clozeList.length;
+            clozeList.push({ word, hint: hint || '' });
+            return `\x00CLOZE${i}\x00`;
         });
 
-        return container;
+        // Bước 2: Parse markdown
+        let html;
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true });
+            html = marked.parse(placeholdered);
+        } else {
+            // Fallback nếu marked chưa load
+            html = '<p>' + placeholdered.replace(/\n/g, '<br>') + '</p>';
+        }
+
+        // Bước 3: Thay placeholder bằng <span class="cloze">
+        html = html.replace(/\x00CLOZE(\d+)\x00/g, (_, i) => {
+            const { word, hint } = clozeList[parseInt(i)];
+            const noHint = !hint;
+            return `<span class="cloze${noHint ? ' no-hint' : ''}" data-word="${Cards._esc(word)}" data-hint="${Cards._esc(hint)}">${Cards._esc(hint || word)}</span>`;
+        });
+
+        // Bước 4: Build DOM và gắn sự kiện click
+        const wrapper = document.createElement('div');
+        wrapper.className = 'md-content';
+        wrapper.innerHTML = html;
+        wrapper.querySelectorAll('.cloze').forEach(span => {
+            span.addEventListener('click', e => Cards.toggleCloze(e, span));
+        });
+        return wrapper;
     },
 
+    _esc(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    },
+
+    // ── Legacy plain-text cloze (giữ lại để tương thích) ─────────────
+    formatCloze(text) {
+        return Cards.formatClozeMarkdown(text);
+    },
+
+    // ── Cloze toggle ──────────────────────────────────────────────────
     toggleCloze(e, el) {
         e.stopPropagation();
         const word = el.dataset.word;
@@ -60,36 +89,34 @@ const Cards = {
         }
     },
 
-    // Thay thế hàm revealStep cũ trong cards.js
+    // ── Reveal từng bước (👁 button) ──────────────────────────────────
     revealStep() {
         const first = document.querySelector('.cloze:not(.revealed)');
         const tab = (typeof State !== 'undefined' && State.currentTab) ? State.currentTab : 'home';
         const mode = localStorage.getItem(`reveal_mode_${tab}`) || 'full';
-    
+
         if (first) {
             const word = first.dataset.word;
-            
-            // Nếu chọn chế độ phụ âm VÀ thẻ này chưa ở trạng thái hiện phụ âm
+
             if (mode === 'consonants' && first.dataset.state !== 'consonant-shown') {
-                const consonantOnly = word.replace(/[aeiouyAEIOUY]/g, '_');
-                first.textContent = consonantOnly;
-                first.dataset.state = 'consonant-shown'; // Đánh dấu trạng thái trung gian
-                TTS.speak(word, State.currentTab); // Phát âm để hỗ trợ
+                first.textContent = word.replace(/[aeiouyAEIOUY]/g, '_');
+                first.dataset.state = 'consonant-shown';
+                TTS.speak(word, State.currentTab);
             } else {
-                // Hiện đầy đủ từ ẩn
                 Cards.toggleCloze({ stopPropagation: () => {} }, first);
+                delete first.dataset.state;
             }
         } else {
-            // Nếu đã hiện hết, nhấn lần nữa để ẩn tất cả (Reset)
+            // Reset tất cả
             document.querySelectorAll('.cloze').forEach(el => {
                 el.classList.remove('revealed');
-                delete el.dataset.state; // Xóa trạng thái trung gian
+                delete el.dataset.state;
                 el.textContent = el.dataset.hint || el.dataset.word;
             });
         }
     },
 
-
+    // ── Reveal / ẩn tất cả (📢 button) ───────────────────────────────
     toggleAll() {
         const all = document.querySelectorAll('.cloze');
         const anyHidden = Array.from(all).some(el => !el.classList.contains('revealed'));
@@ -108,8 +135,7 @@ const Cards = {
         const cloze = document.querySelector('.cloze:not(.revealed)');
         if (cloze) {
             const word = cloze.dataset.word;
-            const consonantOnly = word.replace(/[aeiouyAEIOUY]/g, '_');
-            cloze.textContent = consonantOnly;
+            cloze.textContent = word.replace(/[aeiouyAEIOUY]/g, '_');
             TTS.speak(word, State.currentTab);
         }
     }
