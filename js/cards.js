@@ -22,56 +22,7 @@ const Cards = {
         return pool[Math.floor(Math.random() * pool.length)];
     },
 
-    // Parse markdown text but preserve cloze tokens [word|hint]
-    // Returns a DocumentFragment with rendered markdown + interactive cloze spans
-    formatClozeMarkdown(text) {
-        // Step 1: Replace cloze tokens with placeholders before markdown parsing
-        const clozeMap = {};
-        let idx = 0;
-        const placeholdered = text.replace(/\[([^\]]*?)(?:\|([^\]]*?))?\]/g, (match, word, hint) => {
-            const key = `\x00CLOZE${idx}\x00`;
-            clozeMap[key] = { word, hint: hint || '' };
-            idx++;
-            return key;
-        });
-
-        // Step 2: Parse markdown (marked.js)
-        let html = '';
-        if (typeof marked !== 'undefined') {
-            html = marked.parse(placeholdered, { breaks: true });
-        } else {
-            // Fallback: treat as plain text
-            html = `<p>${placeholdered}</p>`;
-        }
-
-        // Step 3: Re-inject cloze spans into the rendered HTML string
-        Object.entries(clozeMap).forEach(([key, { word, hint }]) => {
-            const noHint = !hint;
-            const escapedKey = key.replace(/\x00/g, '\\x00');
-            // Build a placeholder anchor we can find via text search
-            const spanHTML = `<span class="cloze${noHint ? ' no-hint' : ''}" data-word="${Cards._escAttr(word)}" data-hint="${Cards._escAttr(hint)}">${Cards._escHtml(hint || word)}</span>`;
-            html = html.replace(key, spanHTML);
-        });
-
-        // Step 4: Build DOM and attach click listeners
-        const wrapper = document.createElement('div');
-        wrapper.className = 'md-content';
-        wrapper.innerHTML = html;
-        wrapper.querySelectorAll('.cloze').forEach(span => {
-            span.addEventListener('click', (e) => Cards.toggleCloze(e, span));
-        });
-        return wrapper;
-    },
-
-    _escAttr(str) {
-        return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    },
-    _escHtml(str) {
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    },
-
     formatCloze(text) {
-        // Legacy plain-text cloze (still used as fallback)
         const container = document.createElement('span');
         const parts = text.split(/(\[.*?(?:\|.*?)?\])/g);
 
@@ -112,7 +63,8 @@ const Cards = {
     // Thay thế hàm revealStep cũ trong cards.js
     revealStep() {
         const first = document.querySelector('.cloze:not(.revealed)');
-        const mode = localStorage.getItem('reveal_mode') || 'full';
+        const tab = (typeof State !== 'undefined' && State.currentTab) ? State.currentTab : 'home';
+        const mode = localStorage.getItem(`reveal_mode_${tab}`) || 'full';
     
         if (first) {
             const word = first.dataset.word;
