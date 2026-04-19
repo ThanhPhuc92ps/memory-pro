@@ -60,7 +60,20 @@
         <div class="modal-content">
             <button class="btn-close-top" onclick="UI.closeModal('addModal')">✕</button>
             <h3 style="margin-top: 0;">Thêm thẻ</h3>
-            <textarea id="addText" rows="4" placeholder="Nội dung [ẩn|gợi ý]..."></textarea>
+            <div class="md-tab-bar">
+                <button class="md-tab active" onclick="UI.switchEditorTab('add','write')">✏️ Soạn</button>
+                <button class="md-tab" onclick="UI.switchEditorTab('add','preview')">👁 Xem trước</button>
+            </div>
+            <div class="md-toolbar">
+                <button onclick="UI.mdInsert('addText','**','**')" title="Bold"><b>B</b></button>
+                <button onclick="UI.mdInsert('addText','*','*')" title="Italic"><i>I</i></button>
+                <button onclick="UI.mdInsert('addText','`','`')" title="Code"><code>{ }</code></button>
+                <button onclick="UI.mdInsert('addText','\n- ','')" title="List">≡</button>
+                <button onclick="UI.mdInsert('addText','[',']')" title="Cloze">[ ]</button>
+                <button onclick="UI.mdInsert('addText','[','|gợi ý]')" title="Cloze+hint">[|h]</button>
+            </div>
+            <textarea id="addText" rows="4" placeholder="Nội dung [ẩn|gợi ý]... Hỗ trợ **Markdown**"></textarea>
+            <div id="add-preview" class="md-preview" style="display:none;"></div>
             <div id="quick-tabs-list"></div>
             <input type="text" id="addCat" placeholder="Tên Tab">
             <input type="number" id="addPrio" value="5">
@@ -75,7 +88,20 @@
         <div class="modal-content">
             <button class="btn-close-top" onclick="UI.closeModal('editModal')">✕</button>
             <h3 style="margin-top: 0;">Sửa thẻ</h3>
+            <div class="md-tab-bar">
+                <button class="md-tab active" onclick="UI.switchEditorTab('edit','write')">✏️ Soạn</button>
+                <button class="md-tab" onclick="UI.switchEditorTab('edit','preview')">👁 Xem trước</button>
+            </div>
+            <div class="md-toolbar">
+                <button onclick="UI.mdInsert('editText','**','**')" title="Bold"><b>B</b></button>
+                <button onclick="UI.mdInsert('editText','*','*')" title="Italic"><i>I</i></button>
+                <button onclick="UI.mdInsert('editText','`','`')" title="Code"><code>{ }</code></button>
+                <button onclick="UI.mdInsert('editText','\n- ','')" title="List">≡</button>
+                <button onclick="UI.mdInsert('editText','[',']')" title="Cloze">[ ]</button>
+                <button onclick="UI.mdInsert('editText','[','|gợi ý]')" title="Cloze+hint">[|h]</button>
+            </div>
             <textarea id="editText" rows="4"></textarea>
+            <div id="edit-preview" class="md-preview" style="display:none;"></div>
             <div id="edit-quick-tabs-list"></div>
             <input type="text" id="editCat">
             <input type="number" id="editPrio">
@@ -88,6 +114,7 @@
 
     <!-- Scripts -->
     <script src="https://unpkg.com/dexie@3/dist/dexie.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="js/tts.js"></script>
     <script src="js/db.js"></script>
     <script src="js/cards.js"></script>
