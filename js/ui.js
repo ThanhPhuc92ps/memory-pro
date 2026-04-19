@@ -7,16 +7,16 @@ const UI = {
         bar.innerHTML = '';
 
         const home = document.createElement('div');
-        home.className = `tab ${!State.currentTab ? 'active' : ''}`;
+        home.className = 'tab ' + (!State.currentTab ? 'active' : '');
         home.textContent = '🏠';
-        home.addEventListener('click', () => App.switchTab(null));
+        home.addEventListener('click', function() { App.switchTab(null); });
         bar.appendChild(home);
 
-        State.getCategories().forEach(c => {
+        State.getCategories().forEach(function(c) {
             const tab = document.createElement('div');
-            tab.className = `tab ${State.currentTab === c ? 'active' : ''}`;
+            tab.className = 'tab ' + (State.currentTab === c ? 'active' : '');
             tab.textContent = c;
-            tab.addEventListener('click', () => App.switchTab(c));
+            tab.addEventListener('click', function() { App.switchTab(c); });
             bar.appendChild(tab);
         });
     },
@@ -29,16 +29,16 @@ const UI = {
         if (!State.currentTab) {
             const cats = State.getCategories();
             if (cats.length === 0) {
-                view.innerHTML = `<div style="text-align:center; margin-top:50px; color:#666;">Chưa có dữ liệu.</div>`;
+                view.innerHTML = '<div style="text-align:center; margin-top:50px; color:#666;">Chưa có dữ liệu.</div>';
                 return;
             }
             const grid = document.createElement('div');
             grid.className = 'cat-grid';
-            cats.forEach(c => {
+            cats.forEach(function(c) {
                 const item = document.createElement('div');
                 item.className = 'cat-item';
                 item.textContent = c;
-                item.addEventListener('click', () => App.switchTab(c));
+                item.addEventListener('click', function() { App.switchTab(c); });
                 grid.appendChild(item);
             });
             view.innerHTML = '';
@@ -59,26 +59,26 @@ const UI = {
         meta.className = 'card-meta';
 
         const prioSpan = document.createElement('span');
-        prioSpan.textContent = `Prio: ${note.prio}`;
+        prioSpan.textContent = 'Prio: ' + note.prio;
 
         const editSpan = document.createElement('span');
         editSpan.textContent = '✏️';
         editSpan.style.cssText = 'color:var(--primary); padding:5px; cursor:pointer;';
-        editSpan.addEventListener('click', () => UI.openEdit());
+        editSpan.addEventListener('click', function() { UI.openEdit(); });
 
         meta.appendChild(prioSpan);
         meta.appendChild(editSpan);
 
         const contentWrap = document.createElement('div');
-        contentWrap.addEventListener('click', (e) => {
+        contentWrap.addEventListener('click', function(e) {
             if (!e.target.classList.contains('cloze')) App.mixNote();
         });
 
-        const h2 = document.createElement('h2');
-        h2.id = 'note-content';
-        h2.appendChild(Cards.formatCloze(note.text));
+        const contentDiv = document.createElement('div');
+        contentDiv.id = 'note-content';
+        contentDiv.appendChild(Cards.formatClozeMarkdown(note.text));
 
-        contentWrap.appendChild(h2);
+        contentWrap.appendChild(contentDiv);
         card.appendChild(meta);
         card.appendChild(contentWrap);
 
@@ -90,49 +90,46 @@ const UI = {
     renderQuickTabs(containerId, inputId) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
-        State.getCategories().forEach(c => {
+        State.getCategories().forEach(function(c) {
             const span = document.createElement('span');
             span.className = 'qt-badge';
             span.textContent = c;
-            span.addEventListener('click', () => {
+            span.addEventListener('click', function() {
                 document.getElementById(inputId).value = c;
             });
             container.appendChild(span);
         });
     },
+
+    // --- Reveal mode (per-tab) ---
     _revealKey() {
-      const tab = (typeof State !== 'undefined' && State.currentTab) ? State.currentTab : 'home';
-      return `reveal_mode_${tab}`;
+        const tab = (typeof State !== 'undefined' && State.currentTab) ? State.currentTab : 'home';
+        return 'reveal_mode_' + tab;
     },
 
     toggleRevealMode() {
-      const key = this._revealKey();
-      const current = localStorage.getItem(key) || 'full';
-      const next = current === 'full' ? 'consonants' : 'full';
-      localStorage.setItem(key, next);
-      this.updateRevealBtn();
+        const key = this._revealKey();
+        const current = localStorage.getItem(key) || 'full';
+        localStorage.setItem(key, current === 'full' ? 'consonants' : 'full');
+        this.updateRevealBtn();
     },
 
     updateRevealBtn() {
-      const label = document.getElementById('reveal-label');
-      const mode = localStorage.getItem(this._revealKey()) || 'full';
-      if (label) {
-          label.textContent = `Chế độ: ${mode === 'full' ? 'Hiện thẳng' : 'Phụ âm trước'}`;
-      }
+        const label = document.getElementById('reveal-label');
+        const mode = localStorage.getItem(this._revealKey()) || 'full';
+        if (label) {
+            label.textContent = 'Chế độ: ' + (mode === 'full' ? 'Hiện thẳng' : 'Phụ âm trước');
+        }
     },
 
     // --- TTS Button ---
-     updateTTSBtn() {
+    updateTTSBtn() {
         const btn = document.getElementById('tts-btn');
         const label = document.getElementById('tts-label');
         if (!btn || !label) return;
-    
-        // Lấy trạng thái từ tts.js (đã có bộ nhớ localStorage)
         const enabled = TTS.isEnabled(State.currentTab);
-        
-        // Cập nhật giao diện
         btn.classList.toggle('active', enabled);
-        label.textContent = `Loa: ${enabled ? 'BẬT' : 'TẮT'}`;
+        label.textContent = 'Loa: ' + (enabled ? 'BẬT' : 'TẮT');
     },
 
     // --- Modals ---
@@ -144,6 +141,9 @@ const UI = {
 
     closeModal(id) {
         document.getElementById(id).style.display = 'none';
+        // Reset về tab Soạn khi đóng modal
+        if (id === 'addModal') this._resetEditorTab('add');
+        if (id === 'editModal') this._resetEditorTab('edit');
     },
 
     openEdit() {
@@ -155,10 +155,74 @@ const UI = {
         this.openModal('editModal');
     },
 
+    // --- Markdown toolbar ---
+    mdInsert(textareaId, before, after) {
+        const el = document.getElementById(textareaId);
+        el.focus();
+        const start = el.selectionStart, end = el.selectionEnd;
+        const sel = el.value.substring(start, end);
+        const insert = before + (sel || 'text') + after;
+        el.value = el.value.substring(0, start) + insert + el.value.substring(end);
+        const cursor = start + before.length + (sel ? sel.length : 4);
+        el.setSelectionRange(cursor, cursor);
+        // Cập nhật preview nếu đang mở
+        const prefix = textareaId === 'addText' ? 'add' : 'edit';
+        const preview = document.getElementById(prefix + '-preview');
+        if (preview && preview.style.display !== 'none') {
+            this._renderPreview(prefix);
+        }
+    },
+
+    // --- Soạn / Xem trước tabs ---
+    switchEditorTab(prefix, tab) {
+        const textareaId = prefix === 'add' ? 'addText' : 'editText';
+        const textarea = document.getElementById(textareaId);
+        const preview = document.getElementById(prefix + '-preview');
+        const toolbar = document.getElementById(prefix + '-toolbar');
+        const tabs = document.querySelectorAll('#' + prefix + 'Modal .md-tab');
+
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+
+        if (tab === 'write') {
+            tabs[0].classList.add('active');
+            textarea.style.display = '';
+            if (toolbar) toolbar.style.display = '';
+            preview.style.display = 'none';
+        } else {
+            tabs[1].classList.add('active');
+            textarea.style.display = 'none';
+            if (toolbar) toolbar.style.display = 'none';
+            preview.style.display = '';
+            this._renderPreview(prefix);
+        }
+    },
+
+    _renderPreview(prefix) {
+        const textareaId = prefix === 'add' ? 'addText' : 'editText';
+        const text = document.getElementById(textareaId).value || '_Chưa có nội dung_';
+        const preview = document.getElementById(prefix + '-preview');
+        preview.innerHTML = '';
+        preview.appendChild(Cards.formatClozeMarkdown(text));
+    },
+
+    _resetEditorTab(prefix) {
+        const textareaId = prefix === 'add' ? 'addText' : 'editText';
+        const textarea = document.getElementById(textareaId);
+        const preview = document.getElementById(prefix + '-preview');
+        const toolbar = document.getElementById(prefix + '-toolbar');
+        const tabs = document.querySelectorAll('#' + prefix + 'Modal .md-tab');
+        if (!textarea) return;
+        textarea.style.display = '';
+        if (toolbar) toolbar.style.display = '';
+        if (preview) preview.style.display = 'none';
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        if (tabs[0]) tabs[0].classList.add('active');
+    },
+
     // --- Smart Input: gõ [ tự wrap ---
     setupSmartInput(id) {
         const el = document.getElementById(id);
-        el.addEventListener('beforeinput', (e) => {
+        el.addEventListener('beforeinput', function(e) {
             if (e.data === '[') {
                 e.preventDefault();
                 const start = el.selectionStart, end = el.selectionEnd;
@@ -170,4 +234,3 @@ const UI = {
         });
     }
 };
-
